@@ -1,0 +1,27 @@
+name: apple_sign_in_for_perception
+description: An aspect of perception for signing in on Apple devices.
+version: 0.0.0-a1
+publish_to: none
+
+environment:
+  sdk: '>=3.0.0 <4.0.0'
+  flutter: ">=1.17.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  sign_in_with_apple: ^5.0.0
+  crypto: ^3.0.3
+  
+  abstractions:
+    git: https://github.com/enspyrco/abstractions
+  
+  json_utils:
+    git: https://github.com/enspyrco/json_utils
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  enspyr_lints:
+    git: https://github.com/enspyrco/enspyr_lints
