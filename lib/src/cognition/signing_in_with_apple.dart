@@ -1,11 +1,13 @@
 import 'package:json_utils/json_utils.dart';
-import 'package:sign_in_with_apple/sign_in_with_apple.dart' as plugin;
+import 'package:locator_for_perception/locator_for_perception.dart';
+import 'package:percepts/percepts.dart';
 import 'package:abstractions/beliefs.dart';
+import 'package:types_for_auth/types_for_auth.dart';
 
-import 'utils/nonce.dart';
+import '../subsystems/sign_in_with_apple_subsystem.dart';
 
-class SignInWithApple<T extends CoreBeliefs> extends Consideration<T> {
-  SignInWithApple();
+class SigningInWithApple<T extends CoreBeliefs> extends Consideration<T> {
+  SigningInWithApple();
 
   /// From: `somewhere I can't remember now...`
   /// To prevent replay attacks with the credential returned from Apple, we
@@ -21,26 +23,18 @@ class SignInWithApple<T extends CoreBeliefs> extends Consideration<T> {
   // final nonce = sha256ofString(rawNonce);
   @override
   Future<void> consider(BeliefSystem<T> beliefSystem) async {
-    final plugin.AuthorizationCredentialAppleID credential =
-        await plugin.SignInWithApple.getAppleIDCredential(
-      scopes: [
-        plugin.AppleIDAuthorizationScopes.email,
-        plugin.AppleIDAuthorizationScopes.fullName,
-      ],
-    );
+    var service = locate<SignInWithAppleSubsystem>();
 
-    var token = credential.identityToken ??
-        (throw 'The credential.identityToken variable was null');
+    String token = await service.signIn();
 
-    beliefSystem.consider(
-      SignInWithFirebaseWithAppleCredential<T>(
-        idToken: token,
-        rawNonce: generateNonce(),
-      ),
-    );
+    beliefSystem.conclude(CredentialAdded<T>(newAppleCredential: token));
+
+    /// Start any cognitions that were added to [OnAuthStateChange].
+    final onAuthStateChange = locate<OnProviderAuthStateChange<T>>();
+    onAuthStateChange.runAll(SignedInState.signedIn, beliefSystem);
   }
 
   @override
   JsonMap toJson() =>
-      {'name_': 'Sign In With Apple', 'state_': <String, dynamic>{}};
+      {'name_': 'SigningInWithApple', 'state_': <String, dynamic>{}};
 }
