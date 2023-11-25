@@ -5,6 +5,7 @@ import 'package:abstractions/beliefs.dart';
 import 'package:types_for_auth/types_for_auth.dart';
 
 import '../subsystems/sign_in_with_apple_subsystem.dart';
+import '../utils/nonce.dart';
 
 class SigningInWithApple<T extends CoreBeliefs> extends Consideration<T> {
   SigningInWithApple();
@@ -25,13 +26,20 @@ class SigningInWithApple<T extends CoreBeliefs> extends Consideration<T> {
   Future<void> consider(BeliefSystem<T> beliefSystem) async {
     var service = locate<SignInWithAppleSubsystem>();
 
+    beliefSystem.conclude(UserAuthStateUpdated<T>(SignedInState.signingIn));
+
     String token = await service.signIn();
 
-    beliefSystem.conclude(CredentialAdded<T>(newAppleCredential: token));
+    beliefSystem.conclude(
+      CredentialAdded<T>(
+        newAppleCredential: token,
+        nonce: generateNonce(),
+      ),
+    );
 
     /// Start any cognitions that were added to [OnAuthStateChange].
-    final onAuthStateChange = locate<OnProviderAuthStateChange<T>>();
-    onAuthStateChange.runAll(SignedInState.signedIn, beliefSystem);
+    locate<OnProviderAuthStateChange<T>>()
+        .runAll(SignedInState.signedIn, beliefSystem);
   }
 
   @override

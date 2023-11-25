@@ -1,5 +1,5 @@
 dependency_overrides:
-# where are we? flutter/utils/perception/auth/<here>
+# where are we? flutter/utils/perception/identity/<here>
   abstractions:
     path: ../../abstractions
   error_correction_in_perception:

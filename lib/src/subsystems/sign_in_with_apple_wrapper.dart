@@ -6,6 +6,7 @@ class SignInWithAppleWrapper {
   const SignInWithAppleWrapper();
 
   Future<AuthorizationCredentialAppleID> getAppleIDCredential(
-          {required List<AppleIDAuthorizationScopes> scopes}) async =>
-      SignInWithApple.getAppleIDCredential(scopes: scopes);
+          {required List<AppleIDAuthorizationScopes> scopes,
+          String? nonce}) async =>
+      SignInWithApple.getAppleIDCredential(scopes: scopes, nonce: nonce);
 }
